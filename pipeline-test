@@ -56,6 +56,8 @@ pipeline {
                             php /workspace/bin/console development:update_fixtures
                         """
                     }
+
+                    sh "git add ."
                     sh "git commit -m 'Fixtures for `PR-101` (ST-425)' || true"
 
                     //sh "git push origin HEAD:stage"
