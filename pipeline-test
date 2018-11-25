@@ -8,9 +8,15 @@ pipeline {
 
                 script {
 
+                    def source = 'ST-425';
+
+                    def PULL_REQUEST_ID = "100";
+
+                    def JIRA_ISSUE_KEY = 'ST-425'
+
                     def scm = checkout changelog: false, poll: false, scm: [
                             $class                           : 'GitSCM',
-                            branches                         : [[name: 'ST-425']],
+                            branches                         : [[name: source]],
                             doGenerateSubmoduleConfigurations: false,
                             extensions                       : [
                                     [$class: 'CleanBeforeCheckout']
@@ -20,7 +26,7 @@ pipeline {
                             userRemoteConfigs                : [[url: SSH_WEBSTORE_REPO]]
                     ]
                     sh "git merge origin/stage --no-commit";
-                    sh "git commit -m 'Merge `PR-101` (ST-425) into `stage`' || true"
+                    sh "git commit -m 'Merge `PR-$PULL_REQUEST_ID` ($JIRA_ISSUE_KEY) into `stage`' || true"
 
                     def changedMigrations = sh(
                             script: "git diff --name-only origin/stage HEAD -- \"app/DoctrineMigrations/Version*.php\"",
@@ -31,7 +37,7 @@ pipeline {
 
                         println "Detected changes in migrations:";
                         println changedMigrations;
-                        println "Updating fixtures...";
+                        println "Generating new fixtures...";
 
                         String mergeCommit = sh(script: "git log --pretty=format:'%h' -n 1", returnStdout: true);
                         String devRds
@@ -67,11 +73,14 @@ pipeline {
                         }
 
                         sh "git add ."
-                        sh "git commit -m 'Fixtures for `PR-101` (ST-425)' || true"
+                        sh "git commit -m 'Fixtures for `PR-$PULL_REQUEST_ID` ($JIRA_ISSUE_KEY)' || true"
+
+                    }else{
+                        println "No migration changes detected. Skipping fixture generation."
                     }
 
                     //sh "git push origin HEAD:stage"
-                    sh "git push origin HEAD:ST-425";
+                    //sh "git push origin :$source";
                 }
             }
         }
