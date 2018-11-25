@@ -19,7 +19,6 @@ pipeline {
                             userRemoteConfigs                : [[url: SSH_WEBSTORE_REPO]]
                     ]
                     sh "git merge origin/stage --no-commit";
-                    sh "git commit -m 'Merge `PR-101` (ST-425) into `stage`' || true"
 
                     def mergeCommit = sh(script: "git log --pretty=format:'%h' -n 1", returnStdout: true);
 
@@ -56,6 +55,11 @@ pipeline {
                             php /workspace/bin/console development:update_fixtures
                         """
                     }
+
+                    sh "git commit -m 'Merge `PR-101` (ST-425) into `stage`' || true"
+                    //sh "git push origin HEAD:stage"
+                    sh "git push origin :$source";
+
 
                 }
             }
