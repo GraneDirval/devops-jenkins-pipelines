@@ -22,7 +22,10 @@ pipeline {
                     sh "git commit -m 'Merge `PR-101` (ST-425) into `stage`' || true"
 
 
-                    def changedMigrations = sh(script: "git diff --name-only origin/stage HEAD -- app/DoctrineMigrations/*.php", returnStdout: true);
+                    def changedMigrations = sh(
+                        script: "git diff --name-only origin/stage HEAD -- \"app/DoctrineMigrations/Version*.php\"",
+                        returnStdout: true
+                    );
 
                     if (changedMigrations) {
                         String mergeCommit = sh(script: "git log --pretty=format:'%h' -n 1", returnStdout: true);
@@ -61,7 +64,6 @@ pipeline {
                         sh "git add ."
                         sh "git commit -m 'Fixtures for `PR-101` (ST-425)' || true"
                     }
-
 
                     //sh "git push origin HEAD:stage"
                     sh "git push origin HEAD:ST-425";
