@@ -21,49 +21,50 @@ pipeline {
                     sh "git merge origin/stage --no-commit";
                     sh "git commit -m 'Merge `PR-101` (ST-425) into `stage`' || true"
 
-                    def mergeCommit = sh(script: "git log --pretty=format:'%h' -n 1", returnStdout: true);
 
-                    String devRds
-                    withCredentials([string(credentialsId: 'StoreStageDBPassword', variable: 'WEBSTORE_STAGE_DB_PASSWORD')]) {
-                        devRds = """
-                            -e "DATABASE_HOST=$WEBSTORE_STAGE_DB_HOST" \
-                            -e "DATABASE_PORT=3306" \
-                            -e "DATABASE_NAME=CI_merge_tmp_db" \
-                            -e "DATABASE_USER=$WEBSTORE_STAGE_DB_USER" \
-                            -e "DATABASE_PASSWORD=$WEBSTORE_STAGE_DB_PASSWORD" \
-                            -v "$WORKSPACE":/workspace
-                        """;
+                    def changedMigrations = sh(script: "git diff --name-only origin/stage HEAD -- app/DoctrineMigrations/*.php", returnStdout: true);
+
+                    if (changedMigrations) {
+                        String mergeCommit = sh(script: "git log --pretty=format:'%h' -n 1", returnStdout: true);
+                        String devRds
+                        withCredentials([string(credentialsId: 'StoreStageDBPassword', variable: 'WEBSTORE_STAGE_DB_PASSWORD')]) {
+                            devRds = """
+                                -e "DATABASE_HOST=$WEBSTORE_STAGE_DB_HOST" \
+                                -e "DATABASE_PORT=3306" \
+                                -e "DATABASE_NAME=CI_merge_tmp_db" \
+                                -e "DATABASE_USER=$WEBSTORE_STAGE_DB_USER" \
+                                -e "DATABASE_PASSWORD=$WEBSTORE_STAGE_DB_PASSWORD" \
+                                -v "$WORKSPACE":/workspace
+                            """;
+                        }
+
+                        sh "git checkout origin/stage -f"
+                        runComposerInstall(WORKSPACE);
+                        docker.image('playwing/php:latest').inside(devRds) {
+                            sh """
+                                php /workspace/bin/console doctrine:database:drop --if-exists --force
+                                php /workspace/bin/console doctrine:database:create --if-not-exists
+                                php /workspace/bin/console doctrine:migrations:migrate
+                                php /workspace/bin/console doctrine:fixtures:load -n --purge-with-truncate
+                            """
+                        }
+
+                        sh "git checkout $mergeCommit -f"
+                        runComposerInstall(WORKSPACE);
+                        docker.image('playwing/php:latest').inside(devRds) {
+                            sh """
+                                php /workspace/bin/console doctrine:migrations:migrate
+                                php /workspace/bin/console development:update_fixtures
+                            """
+                        }
+
+                        sh "git add ."
+                        sh "git commit -m 'Fixtures for `PR-101` (ST-425)' || true"
                     }
 
-                    sh "git checkout origin/stage -f"
-                    runComposerInstall(WORKSPACE);
-
-                    docker.image('playwing/php:latest').inside(devRds) {
-                        sh """
-                            php /workspace/bin/console doctrine:database:drop --if-exists --force
-                            php /workspace/bin/console doctrine:database:create --if-not-exists
-                            php /workspace/bin/console doctrine:migrations:migrate
-                            php /workspace/bin/console doctrine:fixtures:load -n --purge-with-truncate
-                        """
-                    }
-
-                    sh "git checkout $mergeCommit -f"
-                    runComposerInstall(WORKSPACE);
-
-                    docker.image('playwing/php:latest').inside(devRds) {
-                        sh """
-                            php /workspace/bin/console doctrine:migrations:migrate
-                            php /workspace/bin/console development:update_fixtures
-                        """
-                    }
-
-                    sh "git add ."
-                    sh "git commit -m 'Fixtures for `PR-101` (ST-425)' || true"
 
                     //sh "git push origin HEAD:stage"
                     sh "git push origin HEAD:ST-425";
-
-
                 }
             }
         }
