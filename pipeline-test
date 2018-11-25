@@ -22,7 +22,7 @@ pipeline {
                     sh "git commit -m 'Merge `PR-101` (ST-425) into `stage`' || true"
 
                     def mergeCommit = sh(script: "git log --pretty=format:'%h' -n 1", returnStdout: true);
-                    
+
                     String devRds
                     withCredentials([string(credentialsId: 'StoreStageDBPassword', variable: 'WEBSTORE_STAGE_DB_PASSWORD')]) {
                         devRds = """
@@ -34,11 +34,11 @@ pipeline {
                             -v "$WORKSPACE":/workspace
                         """;
                     }
-                   
+
                     sh "git checkout origin/stage -f"
                     runComposerInstall(WORKSPACE);
-                    
-                    docker.image('playwing/php:latest').inside(devRds){
+
+                    docker.image('playwing/php:latest').inside(devRds) {
                         sh """
                             php /workspace/bin/console doctrine:database:drop --if-exists --force
                             php /workspace/bin/console doctrine:database:create --if-not-exists
@@ -46,13 +46,14 @@ pipeline {
                             php /workspace/bin/console doctrine:fixtures:load -n --purge-with-truncate
                         """
                     }
-                    
+
                     sh "git checkout $mergeCommit -f"
                     runComposerInstall(WORKSPACE);
-                    
-                    docker.image('playwing/php:latest').inside(devRds){
+
+                    docker.image('playwing/php:latest').inside(devRds) {
                         sh """
                             php /workspace/bin/console doctrine:migrations:migrate
+                            php /workspace/bin/console development:update_fixtures
                         """
                     }
 
