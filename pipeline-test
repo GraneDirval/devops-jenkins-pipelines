@@ -31,12 +31,11 @@ pipeline {
                     def changedMigrations = sh(
                             script: "git diff --name-only origin/stage HEAD -- \"app/DoctrineMigrations/Version*.php\"",
                             returnStdout: true
-                    );
+                    ).trim();
 
                     if (changedMigrations) {
 
-                        println "Detected changes in migrations:";
-                        println changedMigrations;
+                        println "Detected changes in migrations:\n$changedMigrations";
                         println "Generating new fixtures...";
 
                         String mergeCommit = sh(script: "git log --pretty=format:'%h' -n 1", returnStdout: true);
