@@ -7,6 +7,7 @@ pipeline {
             steps {
 
                 script {
+
                     def scm = checkout changelog: false, poll: false, scm: [
                             $class                           : 'GitSCM',
                             branches                         : [[name: 'ST-425']],
@@ -21,13 +22,17 @@ pipeline {
                     sh "git merge origin/stage --no-commit";
                     sh "git commit -m 'Merge `PR-101` (ST-425) into `stage`' || true"
 
-
                     def changedMigrations = sh(
-                        script: "git diff --name-only origin/stage HEAD -- \"app/DoctrineMigrations/Version*.php\"",
-                        returnStdout: true
+                            script: "git diff --name-only origin/stage HEAD -- \"app/DoctrineMigrations/Version*.php\"",
+                            returnStdout: true
                     );
 
                     if (changedMigrations) {
+
+                        println "Detected changes in migrations:";
+                        println changedMigrations;
+                        println "Updating fixtures...";
+
                         String mergeCommit = sh(script: "git log --pretty=format:'%h' -n 1", returnStdout: true);
                         String devRds
                         withCredentials([string(credentialsId: 'StoreStageDBPassword', variable: 'WEBSTORE_STAGE_DB_PASSWORD')]) {
