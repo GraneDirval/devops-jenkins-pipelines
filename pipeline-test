@@ -58,7 +58,7 @@ pipeline {
 
                     sh "git commit -m 'Merge `PR-101` (ST-425) into `stage`' || true"
                     //sh "git push origin HEAD:stage"
-                    sh "git push origin :$source";
+                    sh "git push origin :ST-425";
 
 
                 }
