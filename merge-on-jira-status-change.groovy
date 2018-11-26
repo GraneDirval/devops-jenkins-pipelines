@@ -54,15 +54,17 @@ pipeline {
 
                         sh "git merge origin/stage --no-commit";
                         sh "git commit -m 'Merge `PR-$PULL_REQUEST_ID` ($JIRA_ISSUE_KEY) into `stage`' || true"
-                        //sh "git push origin HEAD:stage"
-                        //sh "git push origin :$source";
+                        sh "git push origin HEAD:stage"
+
+                        executeAWSCliCommand("codecommit", "merge-pull-request-by-fast-forward", [
+                            "pull-request-id": PULL_REQUEST_ID,
+                            "repository-name": repositoryName
+                        ])
+                        sh "git push origin :$source";
 
                         println "Merged successfully";
                         slackComment = "Successfully merged PR-${PULL_REQUEST_ID} (${JIRA_ISSUE_KEY})."
                         jiraComment body: "Successfully merged PR-${PULL_REQUEST_ID}.", issueKey: JIRA_ISSUE_KEY
-
-
-
 
                     } catch (Exception e) {
 
