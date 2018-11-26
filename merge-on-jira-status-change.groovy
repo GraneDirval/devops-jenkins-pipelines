@@ -35,6 +35,7 @@ pipeline {
 
                     def source = pullRequest.pullRequestTargets[0].sourceReference;
                     def sourceCommit = pullRequest.pullRequestTargets[0].sourceCommit;
+                    def repositoryName = pullRequest.pullRequestTargets[0].repositoryName;
                     def destination = pullRequest.pullRequestTargets[0].destinationCommit;
 
 
@@ -53,12 +54,15 @@ pipeline {
 
                         sh "git merge origin/stage --no-commit";
                         sh "git commit -m 'Merge `PR-$PULL_REQUEST_ID` ($JIRA_ISSUE_KEY) into `stage`' || true"
-                        sh "git push origin HEAD:stage"
-                        sh "git push origin :$source";
+                        //sh "git push origin HEAD:stage"
+                        //sh "git push origin :$source";
 
                         println "Merged successfully";
                         slackComment = "Successfully merged PR-${PULL_REQUEST_ID} (${JIRA_ISSUE_KEY})."
                         jiraComment body: "Successfully merged PR-${PULL_REQUEST_ID}.", issueKey: JIRA_ISSUE_KEY
+
+
+
 
                     } catch (Exception e) {
 
