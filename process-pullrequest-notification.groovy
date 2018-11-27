@@ -18,6 +18,7 @@ pipeline {
                     env.PULL_REQUEST_SOURCE_REFERENCE = prInfo.PULL_REQUEST_SOURCE_REFERENCE
                     env.PULL_REQUEST_DESTINATION_COMMIT = prInfo.PULL_REQUEST_DESTINATION_COMMIT
                     env.PULL_REQUEST_DESTINATION_REFERENCE = prInfo.PULL_REQUEST_DESTINATION_REFERENCE
+                    env.PULL_REQUEST_IS_MERGED = prInfo.PULL_REQUEST_IS_MERGED
 
                     env.APP_ID = "PR-" + prInfo.PULL_REQUEST_ID
 
@@ -112,6 +113,15 @@ pipeline {
                         string(name: 'APP_ID', value: APP_ID)
                 ]
                 echo "Successfully removed"
+
+
+                script{
+                    if(PULL_REQUEST_IS_MERGED){
+                        sh "git push origin :$PULL_REQUEST_SOURCE_REFERENCE";
+                        echo "Removed branch";
+                    }
+                }
+
 
             }
         }
