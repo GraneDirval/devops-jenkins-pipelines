@@ -117,7 +117,7 @@ pipeline {
 
                 script{
                     if(PULL_REQUEST_IS_MERGED){
-                        sh "git push origin :$PULL_REQUEST_SOURCE_REFERENCE";
+                        sh "git push $SSH_WEBSTORE_REPO :$PULL_REQUEST_SOURCE_REFERENCE";
                         echo "Removed branch";
                     }
                 }
