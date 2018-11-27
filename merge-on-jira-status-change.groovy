@@ -56,7 +56,7 @@ pipeline {
                         sh "git commit -m 'Merge `PR-$PULL_REQUEST_ID` ($JIRA_ISSUE_KEY) into `stage`' || true"
                         sh "git push origin HEAD:stage"
 
-                        result executeAWSCliCommand("codecommit", "merge-pull-request-by-fast-forward", [
+                        def result = executeAWSCliCommand("codecommit", "merge-pull-request-by-fast-forward", [
                             "pull-request-id": PULL_REQUEST_ID,
                             "repository-name": repositoryName
                         ])
