@@ -32,12 +32,7 @@ pipeline {
 
                     def data = executeAWSCliCommand("codecommit", "get-pull-request", ["pull-request-id": PULL_REQUEST_ID]);
                     def pullRequest = data.pullRequest
-
                     def source = pullRequest.pullRequestTargets[0].sourceReference;
-                    def sourceCommit = pullRequest.pullRequestTargets[0].sourceCommit;
-                    def repositoryName = pullRequest.pullRequestTargets[0].repositoryName;
-                    def destination = pullRequest.pullRequestTargets[0].destinationCommit;
-
 
                     try {
                         def scm = checkout changelog: false, poll: false, scm: [
@@ -53,7 +48,7 @@ pipeline {
                         ]
 
                         sh "git merge origin/stage --no-commit";
-                        sh "git commit -m 'Merge `PR-$PULL_REQUEST_ID` ($JIRA_ISSUE_KEY) into `stage`' || true"
+                        sh "git commit --author 'Jenkins-CI <jenkins@playwing.com>' -m 'Merge `PR-$PULL_REQUEST_ID` ($JIRA_ISSUE_KEY) into `stage`' || true"
                         sh "git push origin HEAD:stage"
 
                         println "Merged successfully";
