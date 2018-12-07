@@ -95,8 +95,8 @@ timestamps {
       }
 
 
-      //if (reviewerSlackName != SLACK_USER_NAME) {
-        if (true) {
+      if (reviewerSlackName != SLACK_USER_NAME) {
+      /*  if (true) {*/
 
         def codecommitLink = "https://eu-west-1.console.aws.amazon.com/codecommit/home"
         def prLink = "<${codecommitLink}?region=eu-west-1&status=OPEN#/repository/webstore/pull-request/$PULL_REQUEST_ID/changes|PR-${PULL_REQUEST_ID}>"
@@ -114,7 +114,7 @@ timestamps {
 
             while (true) {
               try {
-                timeout(time: 5, unit: 'MINUTES') {
+                timeout(time: 60, unit: 'MINUTES') {
                   input message: "Is PR-$PULL_REQUEST_ID ok?", submitter: reviewerJenkinsName, id: 'code-review-input'
                   isUserClicked = true;
                 }
@@ -126,9 +126,9 @@ timestamps {
                 def response = executeAWSCliCommand("codecommit", "get-pull-request", ["pull-request-id": PULL_REQUEST_ID])
                 if (response.pullRequest.pullRequestStatus == 'CLOSED') {
                   forceBreak = true;
-                  slackSend color: 'C0C0C0', message: "$prLink (${JIRA_ISSUE_KEY}) is already closed. No need to review.", channel: "@${reviewerSlackName}"
+                  slackSend color: 'C0C0C0', message: "$prLink (${JIRA_ISSUE_KEY}) is already closed. No need to review.\nProbably it was manually merged by someone or JIRA issue status change was triggered multiple times.", channel: "@${reviewerSlackName}"
                 } else {
-                  slackSend color: 'C0C0C0', message: "Reminder: ${prLink} (${JIRA_ISSUE_KEY}) is waiting for your approval ${prResolutionLink}", channel: "@${reviewerSlackName}"
+                  slackSend color: 'C0C0C0', message: "Reminder: ${prLink} (${JIRA_ISSUE_KEY}) is waiting for your approval ${prResolutionLink}.", channel: "@${reviewerSlackName}"
                 }
               }
               if (isUserClicked || forceBreak) break
