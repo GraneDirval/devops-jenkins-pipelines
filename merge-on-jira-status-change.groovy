@@ -79,8 +79,20 @@ timestamps {
 
       }
 
-      if (REVIEWER_SLACK_USER_NAME != SLACK_USER_NAME) {
-      //if (true) {
+      def reviewerSlackName;
+      def reviewerJenkinsName;
+
+      if (JIRA_ISSUE_PROJECT_KEY == "ST") {
+        reviewerSlackName = "dmitriy.bichenko"
+        reviewerJenkinsName = "dmitriy.bichenko"
+      } else {
+        reviewerSlackName = REVIEWER_SLACK_USER_NAME;
+        reviewerJenkinsName = REVIEWER_JENKINS_USER_NAME;
+      }
+
+
+      if (reviewerSlackName != SLACK_USER_NAME) {
+        //if (true) {
 
         def codecommitLink = "https://eu-west-1.console.aws.amazon.com/codecommit/home"
         def prLink = "<${codecommitLink}?region=eu-west-1&status=OPEN#/repository/webstore/pull-request/$PULL_REQUEST_ID/changes|PR-${PULL_REQUEST_ID}>"
@@ -89,9 +101,9 @@ timestamps {
           stage('Waiting for Approval') {
 
             def prResolutionLink = "<${BUILD_URL}input|here>"
-            slackSend color: 'C0C0C0', message: "$prLink (${JIRA_ISSUE_KEY}) waiting for your approval ${prResolutionLink}.", channel: "@${REVIEWER_SLACK_USER_NAME}"
+            slackSend color: 'C0C0C0', message: "$prLink (${JIRA_ISSUE_KEY}) waiting for your approval ${prResolutionLink}.", channel: "@${reviewerSlackName}"
             slackSend color: 'C0C0C0', message: "$prLink (${JIRA_ISSUE_KEY}) have no conflicts.\nWaiting for approval of reviewer.", channel: "@${SLACK_USER_NAME}"
-            input message: "Is PR-$PULL_REQUEST_ID ok?", submitter: REVIEWER_JENKINS_USER_NAME, id: 'code-review-input'
+            input message: "Is PR-$PULL_REQUEST_ID ok?", submitter: reviewerJenkinsName, id: 'code-review-input'
 
           }
         } catch (Exception e) {
