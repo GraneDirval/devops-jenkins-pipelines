@@ -131,16 +131,14 @@ node {
     }
 
     if ((NOTIFICATION_TYPE == 'UPDATE' && PULL_REQUEST_STATUS == 'CLOSED')) {
-      stage("Remove") {
-        currentBuild.description = "PR is closed.<br>Removing stage"
-        build job: 'ci-remove-stage-server', parameters: [
-            string(name: 'APP_ID', value: APP_ID)
-        ]
-        println "Successfully removed"
-        if (PULL_REQUEST_IS_MERGED) {
-          sh "git push $SSH_WEBSTORE_REPO :$PULL_REQUEST_SOURCE_REFERENCE";
-          println "Removed branch";
-        }
+      currentBuild.description = "PR is closed.<br>Removing stage"
+      build job: 'ci-remove-stage-server', parameters: [
+          string(name: 'APP_ID', value: APP_ID)
+      ]
+      println "Successfully removed"
+      if (PULL_REQUEST_IS_MERGED) {
+        sh "git push $SSH_WEBSTORE_REPO :$PULL_REQUEST_SOURCE_REFERENCE";
+        println "Removed branch";
       }
     }
   }
