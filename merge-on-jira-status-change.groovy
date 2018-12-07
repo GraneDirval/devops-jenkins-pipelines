@@ -102,9 +102,11 @@ timestamps {
         def prLink = "<${codecommitLink}?region=eu-west-1&status=OPEN#/repository/webstore/pull-request/$PULL_REQUEST_ID/changes|PR-${PULL_REQUEST_ID}>"
 
         try {
+
           stage('Waiting for Approval') {
 
             def prResolutionLink = "<${BUILD_URL}input|here>"
+
             slackSend color: 'C0C0C0', message: "$prLink (${JIRA_ISSUE_KEY}) waiting for your approval ${prResolutionLink}.", channel: "@${reviewerSlackName}"
             slackSend color: 'C0C0C0', message: "$prLink (${JIRA_ISSUE_KEY}) have no conflicts.\nWaiting for approval of reviewer.", channel: "@${SLACK_USER_NAME}"
 
@@ -126,11 +128,14 @@ timestamps {
                   currentBuild.result = 'ABORTED'
                   break;
                 } else {
-                  slackSend color: 'C0C0C0', message: "Reminder: ${prLink} (${JIRA_ISSUE_KEY}) is waiting for your approval ${prResolutionLink}.", channel: "@${reviewerSlackName}"
+
+                  def currentDay = getCurrentDayOfWeek();
+                  if ((currentDay != 'Saturday') && (currentDay != 'Sunday')) {
+                    slackSend color: 'C0C0C0', message: "Reminder: ${prLink} (${JIRA_ISSUE_KEY}) is waiting for your approval ${prResolutionLink}.", channel: "@${reviewerSlackName}"
+                  }
                 }
               }
             }
-
           }
 
         } catch (Exception e) {
