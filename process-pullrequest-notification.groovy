@@ -67,7 +67,7 @@ timestamps {
 
       if (commitInfo.commit.author.email == 'jenkins@playwing.com') {
         currentBuild.result = 'ABORTED'
-        currentBuild.description = "Skipped premerged build"
+        currentBuild.description = "Pre-merge commit from jenkins - skipped build."
         return;
       }
 
