@@ -110,6 +110,8 @@ timestamps {
           slackSend color: 'FF0000', message: "Your $prLink (${JIRA_ISSUE_KEY}) is declined by reviewer.", channel: "@${SLACK_USER_NAME}"
           return
         }
+      } else {
+        println "Reviewer ($reviewerSlackName) and commit author ($SLACK_USER_NAME) are same - skipping step"
       }
 
 
