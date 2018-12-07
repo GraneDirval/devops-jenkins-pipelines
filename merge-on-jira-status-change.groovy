@@ -1,3 +1,7 @@
+def isTimeoutException(Exception err) {
+  return 'SYSTEM' == err.getCauses()[0].getUser().toString()
+}
+
 timestamps {
   node {
     def IS_MATCHED;
@@ -103,7 +107,33 @@ timestamps {
             def prResolutionLink = "<${BUILD_URL}input|here>"
             slackSend color: 'C0C0C0', message: "$prLink (${JIRA_ISSUE_KEY}) waiting for your approval ${prResolutionLink}.", channel: "@${reviewerSlackName}"
             slackSend color: 'C0C0C0', message: "$prLink (${JIRA_ISSUE_KEY}) have no conflicts.\nWaiting for approval of reviewer.", channel: "@${SLACK_USER_NAME}"
-            input message: "Is PR-$PULL_REQUEST_ID ok?", submitter: reviewerJenkinsName, id: 'code-review-input'
+
+
+            def isUserClicked = false
+            def forceBreak = false;
+
+            while (true) {
+              try {
+                timeout(time: 45, unit: 'MINUTES') {
+                  input message: "Is PR-$PULL_REQUEST_ID ok?", submitter: reviewerJenkinsName, id: 'code-review-input'
+                  isUserClicked = true;
+                }
+              } catch (Exception err) {
+                if (!isTimeoutException(err)) {
+                  throw err
+                }
+
+                def response = executeAWSCliCommand("codecommit", "get-pull-request", ["pull-request-id": PULL_REQUEST_ID])
+                if (response.pullRequest.pullRequestStatus == 'CLOSED') {
+                  forceBreak = true;
+                  slackSend color: 'C0C0C0', message: "$prLink (${JIRA_ISSUE_KEY}) is already closed. No need to review.", channel: "@${reviewerSlackName}"
+                } else {
+                  slackSend color: 'C0C0C0', message: "Reminder: ${prLink} (${JIRA_ISSUE_KEY}) is waiting for your approval ${prResolutionLink}", channel: "@${reviewerSlackName}"
+                }
+              }
+              if (isUserClicked || forceBreak) break
+            }
+
 
           }
         } catch (Exception e) {
@@ -134,7 +164,7 @@ timestamps {
           /*if (IS_PRE_MERGE_COMMIT_CREATED) {
             sh "git commit --amend --no-edit"
           } else {*/
-            sh "git commit --author 'Jenkins-CI <jenkins@playwing.com>' -m 'Merge `PR-$PULL_REQUEST_ID` ($JIRA_ISSUE_KEY) into `stage`'"
+          sh "git commit --author 'Jenkins-CI <jenkins@playwing.com>' -m 'Merge `PR-$PULL_REQUEST_ID` ($JIRA_ISSUE_KEY) into `stage`'"
           /*}*/
 
           println "Post-review merge was successful";
