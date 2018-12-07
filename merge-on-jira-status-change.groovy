@@ -95,8 +95,8 @@ timestamps {
       }
 
 
-      if (reviewerSlackName != SLACK_USER_NAME) {
-        //if (true) {
+      //if (reviewerSlackName != SLACK_USER_NAME) {
+        if (true) {
 
         def codecommitLink = "https://eu-west-1.console.aws.amazon.com/codecommit/home"
         def prLink = "<${codecommitLink}?region=eu-west-1&status=OPEN#/repository/webstore/pull-request/$PULL_REQUEST_ID/changes|PR-${PULL_REQUEST_ID}>"
@@ -114,7 +114,7 @@ timestamps {
 
             while (true) {
               try {
-                timeout(time: 45, unit: 'MINUTES') {
+                timeout(time: 5, unit: 'MINUTES') {
                   input message: "Is PR-$PULL_REQUEST_ID ok?", submitter: reviewerJenkinsName, id: 'code-review-input'
                   isUserClicked = true;
                 }
