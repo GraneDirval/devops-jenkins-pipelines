@@ -1,7 +1,6 @@
 #!/usr/bin/env groovy
-
-node {
-  timestamps {
+timestamps {
+  node {
 
     def NOTIFICATION_TYPE;
     def PULL_REQUEST_STATUS;
@@ -74,7 +73,6 @@ node {
 
 
       stage('Build') {
-
         currentBuild.description = "<i>$PULL_REQUEST_TITLE</i>"
         def appConfigFile = getAppConfigFilePath(APP_ID)
         def appDirectory = getAppWorkspacePath(APP_ID)
@@ -127,7 +125,6 @@ node {
 
         setupNginxVirtualHost(APP_ID);
       }
-
     }
 
     if ((NOTIFICATION_TYPE == 'UPDATE' && PULL_REQUEST_STATUS == 'CLOSED')) {
