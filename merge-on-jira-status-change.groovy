@@ -79,8 +79,8 @@ timestamps {
 
       }
 
-//    if (REVIEWER_SLACK_USER_NAME != SLACK_USER_NAME) {
-      if (true) {
+      if (REVIEWER_SLACK_USER_NAME != SLACK_USER_NAME) {
+      //if (true) {
 
         def codecommitLink = "https://eu-west-1.console.aws.amazon.com/codecommit/home"
         def prLink = "<${codecommitLink}?region=eu-west-1&status=OPEN#/repository/webstore/pull-request/$PULL_REQUEST_ID/changes|PR-${PULL_REQUEST_ID}>"
@@ -128,7 +128,7 @@ timestamps {
 
         }
 
-        //sh "git push origin HEAD:stage"
+        sh "git push origin HEAD:stage"
         println "Pushed successfully";
 
 
