@@ -131,11 +131,11 @@ timestamps {
 
         try {
 
-          if (IS_PRE_MERGE_COMMIT_CREATED) {
+          /*if (IS_PRE_MERGE_COMMIT_CREATED) {
             sh "git commit --amend --no-edit"
-          } else {
+          } else {*/
             sh "git commit --author 'Jenkins-CI <jenkins@playwing.com>' -m 'Merge `PR-$PULL_REQUEST_ID` ($JIRA_ISSUE_KEY) into `stage`'"
-          }
+          /*}*/
 
           println "Post-review merge was successful";
         } catch (Exception e) {
