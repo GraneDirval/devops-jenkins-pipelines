@@ -129,8 +129,7 @@ timestamps {
                   break;
                 } else {
 
-                  def currentDay = getCurrentDayOfWeek();
-                  if ((currentDay != 'Saturday') && (currentDay != 'Sunday')) {
+                  if (isWorkingTime()) {
                     slackSend color: 'C0C0C0', message: "Reminder: ${prLink} (${JIRA_ISSUE_KEY}) is waiting for your approval ${prResolutionLink}.", channel: "@${reviewerSlackName}"
                   }
                 }
