@@ -12,8 +12,8 @@ timestamps {
       if (build != currentBuild.getRawBuild()) {
         def parameters = getJenkinsBuildParameters(build);
         if (JIRA_ISSUE_KEY == parameters['JIRA_ISSUE_KEY']) {
-          println "Issue $JIRA_ISSUE_KEY is already in process - aborting";
-          currentBuild.description = "Issue is already in process - aborting";
+          println "Issue $JIRA_ISSUE_KEY is already in process";
+          currentBuild.description += "Issue is already in process - aborting.<br>";
           currentBuild.result = 'ABORTED'
           return;
         }
@@ -40,14 +40,14 @@ timestamps {
           PULL_REQUEST_ID = pullRequestData.PULL_REQUEST_ID
           SOURCE_COMMIT = pullRequestData.SOURCE_COMMIT
           SOURCE_REFERENCE = pullRequestData.SOURCE_REFERENCE
-        } else {
-          currentBuild.description += "No matching pull requests found<br>"
         }
       }
     }
 
     if (!IS_MATCHED) {
       println "No matching pull requests found for issue $JIRA_ISSUE_KEY"
+      currentBuild.description += "No matching pull requests found - aborting.<br>"
+      currentBuild.result = 'ABORTED'
       return;
     }
 
