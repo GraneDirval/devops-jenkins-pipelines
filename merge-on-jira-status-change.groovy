@@ -29,7 +29,6 @@ timestamps {
 
     stage('Finding of proper pull request') {
       script {
-        currentBuild.description = "Received notification about changed status.<br>"
         def pullRequestData = getMatchPullRequestsByJiraIssueKey(JIRA_ISSUE_KEY, ALLOWED_DESTINATION)
 
         IS_MATCHED = pullRequestData.result
@@ -61,6 +60,9 @@ timestamps {
         SLACK_USER_NAME = item.name
       }
     }
+
+    currentBuild.description = "Processing PR-$PULL_REQUEST_ID.<br>"
+
 
 
     stage('Pre-review merging') {
