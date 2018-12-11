@@ -61,9 +61,9 @@ timestamps {
       }
     }
 
-    currentBuild.description = "Processing PR-$PULL_REQUEST_ID.<br>"
+    currentBuild.description += "Processing PR-$PULL_REQUEST_ID.<br>"
 
-
+    def IS_PRE_MERGE_SUCCESSFUL = false;
 
     stage('Pre-review merging') {
       checkout changelog: true, poll: false, scm: [
@@ -87,6 +87,7 @@ timestamps {
 
         def slackComment = "Cannot merge PR-${PULL_REQUEST_ID} (${JIRA_ISSUE_KEY}).\nPlease resolve branch conflicts."
         slackSend color: 'FF0000', message: slackComment, channel: "@${SLACK_USER_NAME}"
+        IS_PRE_MERGE_SUCCESSFUL = false;
         return;
       }
 
@@ -102,8 +103,12 @@ timestamps {
       }
 
       sh "git push origin HEAD:${SOURCE_REFERENCE}"
+      IS_PRE_MERGE_SUCCESSFUL = true;
+    }
 
-
+    if (!IS_PRE_MERGE_SUCCESSFUL) {
+      currentBuild.description += "Cannot merge because of conflicts.<br>"
+      return
     }
 
     def reviewerSlackName;
