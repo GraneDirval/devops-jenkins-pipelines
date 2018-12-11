@@ -5,7 +5,7 @@ def isTimeoutException(Exception err) {
 timestamps {
   node {
 
-    currentBuild.displayName = "Processing $JIRA_ISSUE_KEY"
+    currentBuild.displayName = "Issue $JIRA_ISSUE_KEY was updated"
 
     def builds = getJenkinsBuilds(JOB_NAME, true)
     for (build in builds) {
@@ -13,7 +13,7 @@ timestamps {
         def parameters = getJenkinsBuildParameters(build);
         if (JIRA_ISSUE_KEY == parameters['JIRA_ISSUE_KEY']) {
           println "Issue $JIRA_ISSUE_KEY is already in process";
-          currentBuild.description += "Issue is already in process - aborting.<br>";
+          currentBuild.description = "Issue is already in process - aborting.<br>";
           currentBuild.result = 'ABORTED'
           return;
         }
@@ -45,7 +45,7 @@ timestamps {
 
     if (!IS_MATCHED) {
       println "No matching pull requests found for issue $JIRA_ISSUE_KEY"
-      currentBuild.description += "No matching pull requests found - aborting.<br>"
+      currentBuild.description = "No matching pull requests found - aborting.<br>"
       currentBuild.result = 'ABORTED'
       return;
     }
@@ -61,7 +61,7 @@ timestamps {
       }
     }
 
-    currentBuild.description += "Processing PR-$PULL_REQUEST_ID.<br>"
+    currentBuild.description = "Processing PR-$PULL_REQUEST_ID.<br>"
 
     def IS_PRE_MERGE_SUCCESSFUL = false;
 
