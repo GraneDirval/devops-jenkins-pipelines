@@ -185,6 +185,7 @@ timestamps {
     stage("Pushing to remote") {
 
       try {
+        sh "git fetch origin stage"
         sh "git merge origin/stage --no-commit";
       } catch (Exception e) {
         jiraComment body: "Cannot merge PR-${PULL_REQUEST_ID}.\nPlease resolve branch conflicts.", issueKey: JIRA_ISSUE_KEY
