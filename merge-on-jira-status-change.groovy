@@ -4,6 +4,22 @@ def isTimeoutException(Exception err) {
 
 timestamps {
   node {
+
+    currentBuild.displayName = "Processing $JIRA_ISSUE_KEY"
+
+    def builds = getJenkinsBuilds(JOB_NAME, true)
+    for (build in builds) {
+      if (build != currentBuild.getRawBuild()) {
+        def parameters = getJenkinsBuildParameters(build);
+        if (JIRA_ISSUE_KEY == parameters['JIRA_ISSUE_KEY']) {
+          println "Issue $JIRA_ISSUE_KEY is already in process - aborting";
+          currentBuild.description = "Issue is already in process - aborting";
+          currentBuild.result = 'ABORTED'
+          return;
+        }
+      }
+    }
+
     def IS_MATCHED;
     def PULL_REQUEST_ID;
     def SOURCE_COMMIT;
@@ -15,7 +31,6 @@ timestamps {
 
       script {
         currentBuild.description = "Received notification about changed status.<br>"
-        currentBuild.displayName = "Processing $JIRA_ISSUE_KEY"
         def pullRequestData = getMatchPullRequestsByJiraIssueKey(JIRA_ISSUE_KEY, ALLOWED_DESTINATION)
 
         IS_MATCHED = pullRequestData.result
@@ -139,6 +154,9 @@ timestamps {
 
         } catch (Exception e) {
           slackSend color: 'FF0000', message: "Your $prLink (${JIRA_ISSUE_KEY}) is declined by reviewer.", channel: "@${SLACK_USER_NAME}"
+          jiraTransitionIssueByName(JIRA_ISSUE_KEY, "Changes Requested")
+          jiraComment body: "Changes has been requested for PR-${PULL_REQUEST_ID}.", issueKey: JIRA_ISSUE_KEY
+
           return
         }
 
