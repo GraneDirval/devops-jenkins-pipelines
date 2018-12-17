@@ -158,7 +158,10 @@ timestamps {
               } else {
 
                 if (isWorkingTime()) {
+                  println "Sending reminder"
                   slackSend color: 'C0C0C0', message: "Reminder: ${prLink} (${JIRA_ISSUE_KEY}) is waiting for your approval ${prResolutionLink}.", channel: "@${reviewerSlackName}"
+                }else{
+                  println "Not working time - is not neccessary to send reminder";
                 }
               }
             }
