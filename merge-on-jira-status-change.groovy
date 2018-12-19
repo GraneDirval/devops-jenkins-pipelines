@@ -153,6 +153,7 @@ timestamps {
               def response = executeAWSCliCommand("codecommit", "get-pull-request", ["pull-request-id": PULL_REQUEST_ID])
               if (response.pullRequest.pullRequestStatus == 'CLOSED') {
                 slackSend color: 'C0C0C0', message: "$prLink (${JIRA_ISSUE_KEY}) is already closed. No need to review.\nProbably it was manually merged by someone or JIRA issue status change was triggered multiple times.", channel: "@${reviewerSlackName}"
+                println "Pull Request is closed - aborting";
                 currentBuild.result = 'ABORTED'
                 break;
               } else {
