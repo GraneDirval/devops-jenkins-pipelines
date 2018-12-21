@@ -21,8 +21,7 @@ node {
       ])
 
       sh "git fetch --tags"
-      def shellScript = "git ls-remote --tags origin | grep \"v${VERSION_TAG}\"";
-      def isGitTagExists = sh(returnStdout: true, script: shellScript).trim()
+      def isGitTagExists = sh(returnStdout: true, script: "git tag -l \"v${VERSION_TAG}\"").trim()
 
       if (isGitTagExists) {
         error("Tag v${VERSION_TAG} is already exists")
