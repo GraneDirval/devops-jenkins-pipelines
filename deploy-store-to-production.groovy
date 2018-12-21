@@ -21,7 +21,8 @@ node {
       ])
 
       sh "git fetch --tags"
-      def isGitTagExists = sh(returnStdout: true, script: "git tag -l \"v${VERSION_TAG}\"").trim()
+      def shellScript = "git ls-remote --tags origin | grep \"v${VERSION_TAG}\"";
+      def isGitTagExists = sh(returnStdout: true, script: shellScript).trim()
 
       if (isGitTagExists) {
         error("Tag v${VERSION_TAG} is already exists")
@@ -32,24 +33,24 @@ node {
 
       withCredentials([file(credentialsId: 'GeoIP.conf', variable: 'MAXMIND_CONF_FILE')]) {
         sh """
-                geoipupdate -f ${MAXMIND_CONF_FILE} -d .
-                rm .geoipupdate.lock -f
-                
-                mv GeoIP2-Connection-Type.mmdb var/geoip-databases/GeoIP2-Connection-Type.mmdb -f
-                mv GeoIP2-Country.mmdb var/geoip-databases/GeoIP2-Country.mmdb -f
-                mv GeoIP2-ISP.mmdb var/geoip-databases/GeoIP2-ISP.mmdb -f
-                """
+          geoipupdate -f ${MAXMIND_CONF_FILE} -d .
+          rm .geoipupdate.lock -f
+          
+          mv GeoIP2-Connection-Type.mmdb var/geoip-databases/GeoIP2-Connection-Type.mmdb -f
+          mv GeoIP2-Country.mmdb var/geoip-databases/GeoIP2-Country.mmdb -f
+          mv GeoIP2-ISP.mmdb var/geoip-databases/GeoIP2-ISP.mmdb -f
+        """
       }
 
       withCredentials([string(credentialsId: 'AtlasDB', variable: 'ATLAS_KEY')]) {
         sh """
-                wget -O tmp.gz "https://deviceatlas.com/getJSON.php?licencekey=${ATLAS_KEY}&format=gzip"
-                
-                gunzip -c ./tmp.gz > db.json
-                rm tmp.gz -f
-                
-                mv db.json ./var/devicedetection/database/db.json -f
-                """
+          wget -O tmp.gz "https://deviceatlas.com/getJSON.php?licencekey=${ATLAS_KEY}&format=gzip"
+          
+          gunzip -c ./tmp.gz > db.json
+          rm tmp.gz -f
+          
+          mv db.json ./var/devicedetection/database/db.json -f
+        """
       }
     }
     stage('Generate production configs') {
@@ -66,21 +67,21 @@ node {
       runComposerInstall(WORKSPACE)
       docker.image('playwing/php:latest').inside("-v $WORKSPACE:/workspace") {
         sh '''
-                    php /workspace/bin/console development:generate_app_version_hash || true
-                    php /workspace/vendor/sensio/distribution-bundle/Resources/bin/build_bootstrap.php /workspace/var/ /workspace/app/ 
-                    php /workspace/bin/console assets:install /workspace/web/ -v
-                    php /workspace/bin/console assetic:dump /workspace/web/ -v --no-debug
-                '''
+          php /workspace/bin/console development:generate_app_version_hash || true
+          php /workspace/vendor/sensio/distribution-bundle/Resources/bin/build_bootstrap.php /workspace/var/ /workspace/app/ 
+          php /workspace/bin/console assets:install /workspace/web/ -v
+          php /workspace/bin/console assetic:dump /workspace/web/ -v --no-debug
+        '''
       }
       dir('web/css') {
         sh '''
-            for f in *.css; do short=${f%.css}; yui-compressor $f -o $f; done;
-             '''
+          for f in *.css; do short=${f%.css}; yui-compressor $f -o $f; done;
+        '''
       }
       dir('web/js') {
         sh '''
-            for f in *.js; do short=${f%.js}; java -jar /var/lib/jenkins/closure-compiler-v20181210.jar --js $f --js_output_file $f.min && mv $f.min $f; done;
-            '''
+          for f in *.js; do short=${f%.js}; java -jar /var/lib/jenkins/closure-compiler-v20181210.jar --js $f --js_output_file $f.min && mv $f.min $f; done;
+        '''
       }
 
 
@@ -90,13 +91,13 @@ node {
       withCredentials([string(credentialsId: 'StoreProductionDBPassword', variable: 'WEBSTORE_PRODUCTION_DB_PASS')]) {
 
         def live = """
-                    -e "DATABASE_HOST=$WEBSTORE_PRODUCTION_DB_HOST" \
-                    -e "DATABASE_PORT=3306" \
-                    -e "DATABASE_NAME=webstore" \
-                    -e "DATABASE_USER=webstore" \
-                    -e "DATABASE_PASSWORD=$WEBSTORE_PRODUCTION_DB_PASS" \
-                    -v $WORKSPACE:/workspace
-                """;
+              -e "DATABASE_HOST=$WEBSTORE_PRODUCTION_DB_HOST" \
+              -e "DATABASE_PORT=3306" \
+              -e "DATABASE_NAME=webstore" \
+              -e "DATABASE_USER=webstore" \
+              -e "DATABASE_PASSWORD=$WEBSTORE_PRODUCTION_DB_PASS" \
+              -v $WORKSPACE:/workspace
+            """;
 
         sh "rm var/cache/* -rf"
 
@@ -132,9 +133,9 @@ node {
     }
     stage('Git push') {
       sh """
-            git tag -a v${VERSION_TAG} -m 'From Jenkins build #${BUILD_ID}'
-            git push origin HEAD:master --tags
-            """
+        git tag -a v${VERSION_TAG} -m 'From Jenkins build #${BUILD_ID}'
+        git push origin HEAD:master --tags
+      """
     }
   }
 }
