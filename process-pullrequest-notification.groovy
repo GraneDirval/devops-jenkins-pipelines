@@ -134,6 +134,7 @@ timestamps {
       ]
       println "Successfully removed"
       if (PULL_REQUEST_IS_MERGED) {
+        sh "git init"
         sh "git push $SSH_WEBSTORE_REPO :$PULL_REQUEST_SOURCE_REFERENCE";
         println "Removed branch";
       }
