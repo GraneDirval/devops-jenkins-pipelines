@@ -93,7 +93,7 @@ node {
               -e "DATABASE_HOST=$WEBSTORE_PRODUCTION_DB_HOST" \
               -e "DATABASE_PORT=3306" \
               -e "DATABASE_NAME=webstore" \
-              -e "DATABASE_USER=webstore" \
+              -e "DATABASE_USER=webstore_prod" \
               -e "DATABASE_PASSWORD=$WEBSTORE_PRODUCTION_DB_PASS" \
               -v $WORKSPACE:/workspace
             """;
