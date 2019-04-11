@@ -216,7 +216,7 @@ timestamps {
 
       sh "git push origin HEAD:stage"
       println "Pushed successfully";
-
+      jiraTransitionIssueByName(JIRA_ISSUE_KEY, "Ready for Stage")
 
       jiraComment body: "Successfully merged PR-${PULL_REQUEST_ID}.", issueKey: JIRA_ISSUE_KEY
       def slackComment = "Successfully merged PR-${PULL_REQUEST_ID} (${JIRA_ISSUE_KEY})."
