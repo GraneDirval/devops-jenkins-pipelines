@@ -81,7 +81,7 @@ timestamps {
         sh "mkdir $appDirectory/html/web -p"
         // TODO `build in progress` screen
 
-        def buildVariables = resolveBuildVariables(appConfigFile)
+        def buildVariables = resolveBuildVariables(appConfigFile, 'http://billing.playwing.com/api')
 
         print buildVariables;
 
