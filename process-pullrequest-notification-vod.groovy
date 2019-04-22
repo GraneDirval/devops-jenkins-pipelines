@@ -1,0 +1,5 @@
+timestamps {
+  node {
+    pipelineProcessPR('vod');
+  }
+}
