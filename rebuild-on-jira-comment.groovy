@@ -30,7 +30,7 @@ pipeline {
 
                     def appConfigFile = getAppConfigFilePath(APP_ID)
                     def appDirectory = getAppWorkspacePath(APP_ID)
-                    def buildVariables = resolveBuildVariables(appConfigFile)
+                    def buildVariables = resolveBuildVariables(appConfigFile, 'http://billing.playwing.com/api')
 
                     doBuild(APP_ID, SOURCE_COMMIT, appDirectory, buildVariables)
                     setupNginxVirtualHost(APP_ID);
