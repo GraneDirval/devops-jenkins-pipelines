@@ -19,7 +19,7 @@ timestamps {
     def SLACK_USER_NAME;
 
     stage('Parse Notification') {
-      prInfo = getPullRequestInfoByNotification sqs_body;
+      prInfo = getPullRequestInfoByNotification(sqs_body,'store');
 
       NOTIFICATION_TYPE = prInfo.NOTIFICATION_TYPE
 
