@@ -29,7 +29,7 @@ timestamps {
 
     stage('Finding of proper pull request') {
       script {
-        def pullRequestData = getMatchPullRequestsByJiraIssueKey(JIRA_ISSUE_KEY, ALLOWED_DESTINATION)
+        def pullRequestData = getMatchPullRequestsByJiraIssueKey(JIRA_ISSUE_KEY, ALLOWED_DESTINATION, 'store')
 
         IS_MATCHED = pullRequestData.result
 
