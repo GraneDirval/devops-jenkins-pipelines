@@ -7,7 +7,7 @@ pipeline {
                 script {
 
                     currentBuild.displayName = "Processing $JIRA_ISSUE_KEY"
-                    def pullRequestData = getMatchPullRequestsByJiraIssueKey(JIRA_ISSUE_KEY, ALLOWED_DESTINATION)
+                    def pullRequestData = getMatchPullRequestsByJiraIssueKey(JIRA_ISSUE_KEY, ALLOWED_DESTINATION, 'store')
 
                     env.IS_MATCHED = pullRequestData.result
                     if (pullRequestData.result) {
