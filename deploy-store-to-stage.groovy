@@ -37,7 +37,7 @@ node {
         """
       }
 
-      withCredentials([string(credentialsId: 'AtlasDB', variable: 'ATLAS_KEY')]) {
+      /*withCredentials([string(credentialsId: 'AtlasDB', variable: 'ATLAS_KEY')]) {
         sh """
           wget -O tmp.gz "https://deviceatlas.com/getJSON.php?licencekey=${ATLAS_KEY}&format=gzip"
 
@@ -46,7 +46,7 @@ node {
 
           mv db.json ./var/devicedetection/database/db.json -f
         """
-      }
+      }*/
     }
     stage('Install dependencies') {
       runComposerInstall(WORKSPACE)
