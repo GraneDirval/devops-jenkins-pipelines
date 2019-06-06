@@ -8,7 +8,7 @@ node {
     stage('Checkout') {
       SCM_VARS = checkout([
           $class                           : 'GitSCM',
-          branches                         : [[name: 'master']],
+          branches                         : [[name: 'stage']],
           doGenerateSubmoduleConfigurations: false,
           extensions                       : [
               [$class: 'CleanBeforeCheckout'],
