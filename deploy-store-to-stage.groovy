@@ -57,7 +57,7 @@ node {
             -e "DATABASE_PORT=3306" \
             -e "DATABASE_NAME=webstore_development" \
             -e "DATABASE_USER=webstore_development" \
-            -e "DATABASE_PASSWORD=sbVsT6gB4AbvlpQR" \
+            -e "DATABASE_PASSWORD=yuV3xgdQWm" \
             -v $WORKSPACE:/workspace
           """;
 
