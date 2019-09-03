@@ -6,9 +6,18 @@ node {
     currentBuild.displayName = "v${VERSION_TAG}"
 
     stage('Checkout') {
+
+      def selectedBranch;
+
+      if(IS_HOTFIX == 'true') {
+        selectedBranch = 'hotfix'
+      } else {
+        selectedBranch = 'stage'
+      }
+
       SCM_VARS = checkout([
           $class                           : 'GitSCM',
-          branches                         : [[name: 'stage']],
+          branches                         : [[name: selectedBranch]],
           doGenerateSubmoduleConfigurations: false,
           extensions                       : [
               [$class: 'CleanBeforeCheckout'],
@@ -107,7 +116,6 @@ node {
     }
     stage('Deploy') {
 
-
       sh 'rm -rf app.zip && zip -rq app.zip . --exclude ".git/*"'
       step([
           $class                  : 'AWSEBDeploymentBuilder',
@@ -135,6 +143,21 @@ node {
         git tag -a v${VERSION_TAG} -m 'From Jenkins build #${BUILD_ID}'
         git push origin HEAD:master --tags
       """
+
+      if(IS_HOTFIX == 'true') {
+        sh """
+          git checkout origin/stage          
+          git merge origin/master
+          git push origin HEAD:stage --tags
+        """
+      } else {
+        sh """
+          git checkout origin/hotfix          
+          git merge origin/master
+          git push origin HEAD:hotfix --tags
+        """
+      }
+
     }
   }
 }
